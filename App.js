@@ -1,324 +1,242 @@
-import React, { useState } from 'react';
-import {
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  TouchableOpacity,
-  View,
-} from 'react-native';
-import { Formik } from 'formik';
+import React from 'react';
+import { Image, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-function InputWithLabel({ label, placeholder, value, onChangeText, secureTextEntry = false }) {
+function Avatar({ source, size = 64 }) {
+  return <Image source={{ uri: source }} style={[baseStyles.avatar, { width: size, height: size, borderRadius: size / 2 }]} />;
+}
+
+function Heading({ children }) {
+  return <Text style={baseStyles.heading}>{children}</Text>;
+}
+
+function Title({ children, style }) {
+  return <Text style={[baseStyles.title, style]}>{children}</Text>;
+}
+
+function WoofCard({ name, avatar }) {
   return (
-    <View style={styles.inputGroup}>
-      <Text style={styles.label}>{label}</Text>
-      <TextInput
-        style={styles.input}
-        placeholder={placeholder}
-        placeholderTextColor="#8A8A8A"
-        value={value}
-        onChangeText={onChangeText}
-        secureTextEntry={secureTextEntry}
-        autoCapitalize="none"
-      />
+    <View style={woofCardStyles.card}>
+      <Avatar source={avatar} size={62} />
+      <Title style={woofCardStyles.name}>{name}</Title>
     </View>
   );
 }
 
-function ManualForm() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
-  const [petName, setPetName] = useState('');
-  const [petBirthday, setPetBirthday] = useState('');
-  const [petBreed, setPetBreed] = useState('');
-  const [favoriteToy, setFavoriteToy] = useState('');
-
-  const passwordsMatch = password.length > 0 && password === confirmPassword;
-
+function WoofPost({ image, title, description }) {
   return (
-    <View>
-      <Text style={styles.sectionTitle}>Cadastro com useState</Text>
+    <View style={woofPostStyles.container}>
+      <Image source={{ uri: image }} style={woofPostStyles.image} />
 
-      <InputWithLabel
-        label="E-mail"
-        placeholder="voce@exemplo.com"
-        value={email}
-        onChangeText={setEmail}
-      />
-      <InputWithLabel
-        label="Senha"
-        placeholder="Digite sua senha"
-        value={password}
-        onChangeText={setPassword}
-        secureTextEntry
-      />
-      <InputWithLabel
-        label="Confirmar senha"
-        placeholder="Digite novamente"
-        value={confirmPassword}
-        onChangeText={setConfirmPassword}
-        secureTextEntry
-      />
-      <InputWithLabel
-        label="Nome do pet"
-        placeholder="Ex: Thor"
-        value={petName}
-        onChangeText={setPetName}
-      />
-      <InputWithLabel
-        label="Data de aniversario"
-        placeholder="DD/MM/AAAA"
-        value={petBirthday}
-        onChangeText={setPetBirthday}
-      />
-      <InputWithLabel
-        label="Raca"
-        placeholder="Ex: Golden Retriever"
-        value={petBreed}
-        onChangeText={setPetBreed}
-      />
-      <InputWithLabel
-        label="Brinquedo favorito"
-        placeholder="Ex: Bolinha"
-        value={favoriteToy}
-        onChangeText={setFavoriteToy}
-      />
-
-      <View style={styles.liveDataBox}>
-        <Text style={styles.liveTitle}>Valores em tempo real</Text>
-        <Text style={styles.liveItem}>Email: {email || '-'}</Text>
-        <Text style={styles.liveItem}>Senha: {password ? '***' : '-'}</Text>
-        <Text style={styles.liveItem}>Confirma senha: {confirmPassword ? '***' : '-'}</Text>
-        <Text style={styles.liveItem}>Nome do pet: {petName || '-'}</Text>
-        <Text style={styles.liveItem}>Aniversario: {petBirthday || '-'}</Text>
-        <Text style={styles.liveItem}>Raca: {petBreed || '-'}</Text>
-        <Text style={styles.liveItem}>Brinquedo favorito: {favoriteToy || '-'}</Text>
-        <Text style={[styles.passwordStatus, passwordsMatch ? styles.ok : styles.error]}>
-          {password.length === 0 && confirmPassword.length === 0
-            ? 'Digite senha e confirmacao'
-            : passwordsMatch
-              ? 'Senhas conferem'
-              : 'Senhas nao conferem'}
+      <View style={woofPostStyles.content}>
+        <Title style={woofPostStyles.postTitle}>{title}</Title>
+        <Text style={woofPostStyles.description} numberOfLines={2}>
+          {description}
         </Text>
       </View>
     </View>
   );
 }
 
-function FormikForm() {
+function HomeScreen() {
   return (
-    <Formik
-      initialValues={{
-        email: '',
-        password: '',
-        confirmPassword: '',
-        petName: '',
-        petBirthday: '',
-        petBreed: '',
-        favoriteToy: '',
-      }}
-      onSubmit={(values) => {
-        if (values.password !== values.confirmPassword) {
-          console.log('Erro: senhas nao conferem.');
-          return;
-        }
+    <SafeAreaView style={screenStyles.safeArea}>
+      <ScrollView contentContainerStyle={screenStyles.container}>
+        <Heading>Trending Woofs</Heading>
 
-        console.log('Dados do formulario enviados:', values);
-      }}
-    >
-      {({ values, handleChange, handleSubmit }) => (
-        <View>
-          <Text style={styles.sectionTitle}>Cadastro com Formik</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={screenStyles.woofsRow}
+        >
+          {data.woofs.map((woof) => (
+            <WoofCard key={woof.id} name={woof.name.toUpperCase()} avatar={woof.avatar} />
+          ))}
+        </ScrollView>
 
-          <InputWithLabel
-            label="E-mail"
-            placeholder="voce@exemplo.com"
-            value={values.email}
-            onChangeText={handleChange('email')}
-          />
-          <InputWithLabel
-            label="Senha"
-            placeholder="Digite sua senha"
-            value={values.password}
-            onChangeText={handleChange('password')}
-            secureTextEntry
-          />
-          <InputWithLabel
-            label="Confirmar senha"
-            placeholder="Digite novamente"
-            value={values.confirmPassword}
-            onChangeText={handleChange('confirmPassword')}
-            secureTextEntry
-          />
-          <InputWithLabel
-            label="Nome do pet"
-            placeholder="Ex: Thor"
-            value={values.petName}
-            onChangeText={handleChange('petName')}
-          />
-          <InputWithLabel
-            label="Data de aniversario"
-            placeholder="DD/MM/AAAA"
-            value={values.petBirthday}
-            onChangeText={handleChange('petBirthday')}
-          />
-          <InputWithLabel
-            label="Raca"
-            placeholder="Ex: Golden Retriever"
-            value={values.petBreed}
-            onChangeText={handleChange('petBreed')}
-          />
-          <InputWithLabel
-            label="Brinquedo favorito"
-            placeholder="Ex: Bolinha"
-            value={values.favoriteToy}
-            onChangeText={handleChange('favoriteToy')}
-          />
+        <Heading>New Woof Posts</Heading>
 
-          <TouchableOpacity style={styles.button} onPress={handleSubmit}>
-            <Text style={styles.buttonText}>Enviar com Formik</Text>
-          </TouchableOpacity>
+        <View style={screenStyles.postsList}>
+          {data.posts.map((post) => (
+            <WoofPost
+              key={post.id}
+              image={post.image}
+              title={post.title.toUpperCase()}
+              description={post.description}
+            />
+          ))}
         </View>
-      )}
-    </Formik>
-  );
-}
-
-export default function App() {
-  const [mode, setMode] = useState('manual');
-
-  return (
-    <SafeAreaView style={styles.safeArea}>
-      <ScrollView contentContainerStyle={styles.container}>
-        <Text style={styles.title}>Woofstagram</Text>
-        <Text style={styles.subtitle}>Instagram para pets</Text>
-
-        <View style={styles.switchRow}>
-          <TouchableOpacity
-            style={[styles.switchButton, mode === 'manual' && styles.switchButtonActive]}
-            onPress={() => setMode('manual')}
-          >
-            <Text style={styles.switchText}>useState</Text>
-          </TouchableOpacity>
-
-          <TouchableOpacity
-            style={[styles.switchButton, mode === 'formik' && styles.switchButtonActive]}
-            onPress={() => setMode('formik')}
-          >
-            <Text style={styles.switchText}>Formik</Text>
-          </TouchableOpacity>
-        </View>
-
-        {mode === 'manual' ? <ManualForm /> : <FormikForm />}
       </ScrollView>
     </SafeAreaView>
   );
 }
 
-const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-    backgroundColor: '#F9F7EF',
+export default function App() {
+  return <HomeScreen />;
+}
+
+const baseStyles = StyleSheet.create({
+  avatar: {
+    backgroundColor: '#D4D4D8',
   },
-  container: {
-    padding: 20,
-    paddingBottom: 40,
+  heading: {
+    fontSize: 31,
+    fontWeight: '800',
+    letterSpacing: -0.4,
+    color: '#111827',
+    marginBottom: 14,
+    marginTop: 8,
   },
   title: {
-    fontSize: 34,
-    fontWeight: '800',
-    color: '#222222',
-    marginBottom: 4,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: '#5A5A5A',
-    marginBottom: 18,
-  },
-  switchRow: {
-    flexDirection: 'row',
-    gap: 10,
-    marginBottom: 18,
-  },
-  switchButton: {
-    flex: 1,
-    backgroundColor: '#ECE8DB',
-    paddingVertical: 10,
-    borderRadius: 10,
-    alignItems: 'center',
-  },
-  switchButtonActive: {
-    backgroundColor: '#D7A86E',
-  },
-  switchText: {
-    fontWeight: '700',
-    color: '#1D1D1D',
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '700',
-    marginBottom: 10,
-    color: '#2E2E2E',
-  },
-  inputGroup: {
-    marginBottom: 12,
-  },
-  label: {
     fontSize: 14,
-    fontWeight: '600',
-    marginBottom: 6,
-    color: '#3A3A3A',
-  },
-  input: {
-    borderWidth: 1,
-    borderColor: '#C7C1B0',
-    borderRadius: 12,
-    backgroundColor: '#FFFFFF',
-    paddingHorizontal: 12,
-    paddingVertical: 10,
-    fontSize: 15,
-    color: '#1F1F1F',
-  },
-  liveDataBox: {
-    marginTop: 10,
-    padding: 12,
-    borderRadius: 12,
-    borderWidth: 1,
-    borderColor: '#D9D2BD',
-    backgroundColor: '#FFFCF3',
-  },
-  liveTitle: {
-    fontWeight: '700',
-    marginBottom: 8,
-    color: '#2A2A2A',
-  },
-  liveItem: {
-    fontSize: 13,
-    marginBottom: 4,
-    color: '#3A3A3A',
-  },
-  passwordStatus: {
-    marginTop: 8,
-    fontWeight: '700',
-  },
-  ok: {
-    color: '#1E7D38',
-  },
-  error: {
-    color: '#B32020',
-  },
-  button: {
-    marginTop: 10,
-    backgroundColor: '#1F1F1F',
-    borderRadius: 12,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  buttonText: {
-    color: '#FFFFFF',
-    fontWeight: '700',
+    fontWeight: '800',
+    color: '#261B5E',
   },
 });
+
+const woofCardStyles = StyleSheet.create({
+  card: {
+    width: 118,
+    backgroundColor: '#FFFFFF',
+    borderWidth: 1,
+    borderColor: '#D8D8DF',
+    borderRadius: 16,
+    alignItems: 'center',
+    paddingVertical: 12,
+    marginRight: 12,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 4,
+  },
+  name: {
+    marginTop: 12,
+    textAlign: 'center',
+  },
+});
+
+const woofPostStyles = StyleSheet.create({
+  container: {
+    flexDirection: 'row',
+    backgroundColor: '#FFFFFF',
+    borderRadius: 14,
+    marginBottom: 12,
+  },
+  image: {
+    flex: 1,
+    height: 108,
+    borderRadius: 14,
+  },
+  content: {
+    flex: 2,
+    paddingLeft: 12,
+    justifyContent: 'center',
+  },
+  postTitle: {
+    marginBottom: 6,
+    lineHeight: 18,
+  },
+  description: {
+    color: '#2E2566',
+    fontSize: 16,
+    lineHeight: 22,
+  },
+});
+
+const screenStyles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#F2F2F4',
+  },
+  container: {
+    paddingTop: 12,
+    paddingBottom: 30,
+  },
+  woofsRow: {
+    paddingHorizontal: 18,
+    paddingBottom: 14,
+  },
+  postsList: {
+    paddingHorizontal: 18,
+  },
+});
+
+const data = {
+  woofs: [
+    {
+      id: 'woof-1',
+      name: 'Rex',
+      avatar:
+        'https://images.unsplash.com/photo-1558788353-f76d92427f16?auto=format&fit=crop&w=648&q=80',
+    },
+    {
+      id: 'woof-2',
+      name: 'Ball-r',
+      avatar:
+        'https://images.unsplash.com/photo-1585584114963-503344a119b0?auto=format&fit=crop&h=64&q=80',
+    },
+    {
+      id: 'woof-3',
+      name: 'Happy',
+      avatar:
+        'https://images.unsplash.com/photo-1543466835-00a7907e9de1?auto=format&fit=crop&h=64&q=80',
+    },
+    {
+      id: 'woof-4',
+      name: 'Fluffy',
+      avatar:
+        'https://images.unsplash.com/photo-1554956615-1ba6dc39921b?auto=format&fit=crop&h=64&q=80',
+    },
+    {
+      id: 'woof-5',
+      name: 'Spirit',
+      avatar:
+        'https://images.unsplash.com/photo-1514984879728-be0aff75a6e8?auto=format&fit=crop&h=64&q=80',
+    },
+  ],
+  posts: [
+    {
+      id: 'post-1',
+      image:
+        'https://images.unsplash.com/photo-1544568100-847a948585b9?auto=format&fit=crop&w=967&q=80',
+      title: 'Happy Woofs',
+      description:
+        "How to keep your woof happy and healthy. We've asked some of the best experts out there.",
+    },
+    {
+      id: 'post-2',
+      image:
+        'https://images.unsplash.com/photo-1450778869180-41d0601e046e?auto=format&fit=crop&w=850&q=80',
+      title: 'Woofs & friends',
+      description: 'Best friends are important for humans, but also for dogs.',
+    },
+    {
+      id: 'post-3',
+      image:
+        'https://images.unsplash.com/photo-1558947530-cbcf6e9aeeae?auto=format&fit=crop&w=634&q=80',
+      title: 'Good Woofs',
+      description: 'When they behave right, they are not a danger to society.',
+    },
+    {
+      id: 'post-4',
+      image:
+        'https://images.unsplash.com/photo-1444212477490-ca407925329e?auto=format&fit=crop&w=1100&q=80',
+      title: 'Wild Woofs',
+      description: 'Wild woofs can be common in some places. Learn safe interactions.',
+    },
+    {
+      id: 'post-5',
+      image:
+        'https://images.unsplash.com/photo-1567014543648-e4391c989aab?auto=format&fit=crop&w=1050&q=80',
+      title: 'Sleepy Woofs',
+      description: 'Sleep is just as important for woofs as it is for humans.',
+    },
+    {
+      id: 'post-6',
+      image:
+        'https://images.unsplash.com/photo-1524511751214-b0a384dd9afe?auto=format&fit=crop&w=967&q=80',
+      title: 'Exploring Woofs',
+      description: 'How do woofs explore the world around them every day?',
+    },
+  ],
+};
